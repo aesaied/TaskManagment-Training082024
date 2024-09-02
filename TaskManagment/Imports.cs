@@ -1,0 +1,1 @@
+﻿global using ETask = TaskManagment.Entities.Task;
