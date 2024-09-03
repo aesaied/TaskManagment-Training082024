@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "datatables.net@2.1.5",
+      "destination": "wwwroot/lib/datatables.net/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "datatables.net-bs5@2.1.5",
+      "destination": "wwwroot/lib/datatables.net/",
+      "files": [
+        "dataTables.bootstrap5.min.js",
+        "dataTables.bootstrap5.css",
+        "dataTables.bootstrap5.js",
+        "dataTables.bootstrap5.min.css"
+      ]
+    }
+  ]
+}
