@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaskManagment.Entities;
@@ -104,6 +106,27 @@ namespace TaskManagment.Controllers
 
 
             return View(input);
+
+
+        }
+
+        //list-json
+
+        [ActionName("list-json")]
+        public async Task<IActionResult> GetJson([FromServices] IMapper mapper)
+        {
+
+            var tasks = await _dbContext.Tasks
+                //.Select(task => new TaskModel() { Id=task.Id, Title=task.Title })
+                .ProjectTo<TaskModel>(mapper.ConfigurationProvider)
+                .ToListAsync();
+
+
+
+
+            return Json(new  PageResult<TaskModel>{ RecordsTotal=await _dbContext.Tasks.CountAsync(), RecordsFiltered= await _dbContext.Tasks.CountAsync(), Data=tasks });
+
+
 
 
         }

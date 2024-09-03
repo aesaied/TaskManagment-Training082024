@@ -20,6 +20,8 @@ namespace TaskManagment
                 options.UseSqlServer(connStr);
             });
 
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
