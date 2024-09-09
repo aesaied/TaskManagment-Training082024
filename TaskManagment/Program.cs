@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManagment.AppServices.Projects;
+using TaskManagment.AppServices.Tasks;
 using TaskManagment.Entities;
 
 namespace TaskManagment
@@ -12,6 +14,10 @@ namespace TaskManagment
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            builder.Services.AddScoped<ITasksAppService, TasksAppService>();
+            builder.Services.AddScoped<IProjectAppService, ProjectAppService>();
+
+
             //  register TasksDbContext  as service
 
             var connStr = builder.Configuration.GetConnectionString("MyConnStr");
@@ -19,6 +25,8 @@ namespace TaskManagment
 
                 options.UseSqlServer(connStr);
             });
+
+        
 
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

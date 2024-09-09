@@ -32,6 +32,8 @@
                         <th scope="col">Due date</th>
                         <th scope="col">has attachment</th>
                         <th scope="col">Current status</th>
+                        <th scope="col">Actions</th>
+
 
 
                     </tr>
@@ -46,39 +48,12 @@
 @section Scripts {
 
     <partial name="_datatablesScripts" />
+   <script>
+       var taskJsonUrl = '@Url.Action("list-json")';
 
-    <script>
-
-        $(function () {
-            $('#tblTasks').dataTable({
-                "ajax": {'url':'@Url.Action("list-json")'} ,
-                "processing": true,
-                "serverSide": true,
-
-                "columnDefs": [{
-                    "targets": [0],
-                    "visible": true,
-                    "searchable": false
-                }],
-
-                "columns": [
-
-                    { "data": "id", "name": "id", "autoWidth": true },
-                    { "data": "title", "name": "title", "autoWidth": true },
-                    { "data": "projectName", "name": "projectName", "autoWidth": true },
-                    { "data": "createdDate", "name": "createdDate", "autoWidth": true },
-                    { "data": "dueDate", "name": "dueDate", "autoWidth": true },
-                    { "data": "hasAttachment", "name": "hasAttachment", "autoWidth": true },
-                    { "data": "currentStatus", "name": "currentStatus", "autoWidth": true },
-
-                
-                ]
-
-            }
-            );
-        }
-        );
-    </script>
+   </script>
+    <script src="~/js/pages/tasks/index.js"></script>
+  
 }
 
 @section Styles {

@@ -5,19 +5,22 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaskManagment.Entities;
 using TaskManagment.Models;
+using System.Linq.Dynamic.Core;
+using TaskManagment.AppServices.Tasks;
+using TaskManagment.AppServices.Projects;
 
 
 namespace TaskManagment.Controllers
 {
     public class TasksController : Controller
     {
-        private readonly TasksDbContext _dbContext;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-
-        public TasksController(TasksDbContext dbContext, IWebHostEnvironment environment)
+       
+        private readonly ITasksAppService _tasksAppService;
+        private readonly IProjectAppService _projectAppService;
+        public TasksController(ITasksAppService tasksAppService, IProjectAppService projectAppService)
         {
-            _dbContext = dbContext;
-            _webHostEnvironment = environment;
+           _tasksAppService = tasksAppService;
+            _projectAppService = projectAppService;
         }
         public IActionResult Index()
         {
@@ -27,17 +30,21 @@ namespace TaskManagment.Controllers
 
         public async Task<IActionResult> Create()
         {
-            // 
-            var projects =await _dbContext.Projects.ToListAsync() ;
-
-            //  SelectList
-
-            var  projectSelectList = new SelectList(projects,nameof(Project.Id), nameof(Project.Name));
-
-            ViewBag.Projects = projectSelectList;
-
+         
+            await FillLookups();
 
             return View();
+        }
+
+
+        private async System.Threading.Tasks.Task FillLookups()
+        {
+            var projects = await _projectAppService.GetAll();
+            //  SelectList
+
+            var projectSelectList = new SelectList(projects, nameof(Project.Id), nameof(Project.Name));
+
+            ViewBag.Projects = projectSelectList;
         }
 
 
@@ -50,59 +57,19 @@ namespace TaskManagment.Controllers
             {
 
 
-                var task = new ETask();
-
-                task.Title = input.Title;
-                task.Description = input.Description;
-                task.DueDate = input.DueDate;
-                task.CreatedDate= DateTime.Now;
-                task.ProjectId = input.ProjectId;
-                task.CurrentStatus = Entities.TaskStatus.New;
-                task.Attachment = new Attachment();
-                task.Attachment.OrginalName=input.Attachment.FileName;
-                task.Attachment.ContentLength=input.Attachment.Length;
-                
-               //1)  Place to  save file
-               string basePath  = System.IO.Path.Combine( _webHostEnvironment.ContentRootPath, "Attachments");
-               //2) Generate random name
-               string newName=System.IO.Path.GetRandomFileName();
-                string extension = System.IO.Path.GetExtension(input.Attachment.FileName);
-
-                var FileFullPath = System.IO.Path.Combine(basePath,newName+extension);
-
-
-
-               //3) Save file 
-
-                MemoryStream stream = new MemoryStream();
-                input.Attachment.CopyTo(stream);
-
-                System.IO.File.WriteAllBytes(FileFullPath, stream.ToArray());
-
-
-                task.Attachment.Path= FileFullPath; 
-
-
-                _dbContext.Tasks.Add(task);
-                await _dbContext.SaveChangesAsync();
+              await _tasksAppService.Create(input);
 
 
                 return RedirectToAction("Index");
 
 
-             // System.IO.File.w
-               // input.Attachment.co
 
 
 
             }
 
 
-            var projects = await _dbContext.Projects.ToListAsync();
-
-            var projectSelectList = new SelectList(projects, nameof(Project.Id), nameof(Project.Name));
-
-            ViewBag.Projects = projectSelectList;
+           await FillLookups();
 
 
             return View(input);
@@ -113,21 +80,26 @@ namespace TaskManagment.Controllers
         //list-json
 
         [ActionName("list-json")]
-        public async Task<IActionResult> GetJson([FromServices] IMapper mapper)
+        public async Task<IActionResult> GetJson([FromServices] IMapper mapper, DataTableFilter filter)
         {
 
-            var tasks = await _dbContext.Tasks
-                //.Select(task => new TaskModel() { Id=task.Id, Title=task.Title })
-                .ProjectTo<TaskModel>(mapper.ConfigurationProvider)
-                .ToListAsync();
+            return Json(await _tasksAppService.GetAll(filter));
+
+           
+        }
 
 
+        public async Task<IActionResult> Edit(int id)
+        {
 
+            return View();
 
-            return Json(new  PageResult<TaskModel>{ RecordsTotal=await _dbContext.Tasks.CountAsync(), RecordsFiltered= await _dbContext.Tasks.CountAsync(), Data=tasks });
+        }
 
+        public async Task<IActionResult> View(int id)
+        {
 
-
+            return View();
 
         }
     }
