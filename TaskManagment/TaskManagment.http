@@ -1,0 +1,22 @@
+﻿@TaskManagment_HostAddress = http://localhost:5043
+
+POST {{TaskManagment_HostAddress}}/api/employees
+
+###
+
+POST {{TaskManagment_HostAddress}}/api/employees/create
+Content-Type: application/json
+
+{
+ { name: 'test', email:'123@yahoo.com'}
+}
+
+###
+
+GET {{TaskManagment_HostAddress}}/tasks/getjson/{id}
+
+###
+
+GET {{TaskManagment_HostAddress}}/tasks/index/{id}
+
+###

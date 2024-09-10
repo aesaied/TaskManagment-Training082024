@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManagment.AppServices.Employees;
 using TaskManagment.AppServices.Projects;
 using TaskManagment.AppServices.Tasks;
 using TaskManagment.Entities;
@@ -16,9 +17,16 @@ namespace TaskManagment
 
             builder.Services.AddScoped<ITasksAppService, TasksAppService>();
             builder.Services.AddScoped<IProjectAppService, ProjectAppService>();
+            builder.Services.AddScoped<IEmployeeAppService, EmployeeAppService>();
 
+            //  register swagger services
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             //  register TasksDbContext  as service
+
+
 
             var connStr = builder.Configuration.GetConnectionString("MyConnStr");
             builder.Services.AddDbContext<TasksDbContext>(options => {
@@ -35,10 +43,15 @@ namespace TaskManagment
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
+              
+
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
