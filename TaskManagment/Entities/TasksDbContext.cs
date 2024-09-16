@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TaskManagment.AppServices.Employees;
 
 namespace TaskManagment.Entities
 {
-    public class TasksDbContext: DbContext
+    public class TasksDbContext: IdentityDbContext<AppUser,AppRole,string>
     {
 
         // when  register TasksDbContext send (i.e  Provider ,  connection string)

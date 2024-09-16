@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TaskManagment.AppServices.Employees;
 using TaskManagment.AppServices.Projects;
 using TaskManagment.AppServices.Tasks;
@@ -14,6 +16,7 @@ namespace TaskManagment
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddRazorPages();
 
             builder.Services.AddScoped<ITasksAppService, TasksAppService>();
             builder.Services.AddScoped<IProjectAppService, ProjectAppService>();
@@ -32,6 +35,27 @@ namespace TaskManagment
             builder.Services.AddDbContext<TasksDbContext>(options => {
 
                 options.UseSqlServer(connStr);
+            });
+
+            //builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<TasksDbContext>();
+
+
+            builder.Services.AddIdentity<AppUser,AppRole>(
+                options => {
+
+                    //options.User.AllowedUserNameCharacters = "0123456789";
+                
+                  }
+                )
+                .AddEntityFrameworkStores<TasksDbContext>().AddDefaultTokenProviders()
+                //.AddDefaultUI()
+                ;
+
+
+            builder.Services.ConfigureApplicationCookie(options => {
+            
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+                options.LoginPath = "/Account/login";
             });
 
         
@@ -55,11 +79,15 @@ namespace TaskManagment
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            // load user info
+            app.UseAuthentication();
 
             app.UseRouting();
 
+            //  check  if authorized
             app.UseAuthorization();
 
+            app.MapRazorPages();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
