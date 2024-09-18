@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TaskManagment.AppServices.Employees;
 
@@ -22,6 +23,8 @@ namespace TaskManagment.Entities
 
         public DbSet<Employee> Employees { get; set; }
 
+        public DbSet<Country> Countries { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +37,28 @@ namespace TaskManagment.Entities
                 new Employee() { Email = "mahdi@gmail.com", Id = 2, IsActive = true, JobTitle = "Manager", Name = "Mahdi Turkman", AssignDate = new DateTime(2008, 1, 1), PhoneNumber = "059271035" }
 
                 );
+
+
+            modelBuilder.Entity<AppUser>().Property(s => s.CountryId).HasDefaultValueSql("1");
+
+            modelBuilder.Entity<Country>().HasData(
+                new Country() { Id=1, Name="Palestine" },
+                new Country() { Id=2, Name="Jordan" }
+                );
+
+
+            PasswordHasher<AppUser> passwordHasher = new PasswordHasher<AppUser>();
+
+            AppUser user = new AppUser() { Email="admin@experts.ps", UserName= "admin@experts.ps", FullName="system admin", CountryId=1};
+
+            user.NormalizedEmail = user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
+
+            string result = passwordHasher.HashPassword(user, "123@Abc");
+
+            user.PasswordHash = result;
+
+            modelBuilder.Entity<AppUser>().HasData(user);
 
 
         }

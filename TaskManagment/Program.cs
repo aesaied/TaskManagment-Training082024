@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TaskManagment.AppServices.Employees;
 using TaskManagment.AppServices.Projects;
+using TaskManagment.AppServices.Security;
 using TaskManagment.AppServices.Tasks;
 using TaskManagment.Entities;
 
@@ -10,7 +11,7 @@ namespace TaskManagment
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static  void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ namespace TaskManagment
             builder.Services.AddScoped<ITasksAppService, TasksAppService>();
             builder.Services.AddScoped<IProjectAppService, ProjectAppService>();
             builder.Services.AddScoped<IEmployeeAppService, EmployeeAppService>();
+            builder.Services.AddScoped<IAccountAppService, AccountAppService>();    
 
             //  register swagger services
 
@@ -63,6 +65,36 @@ namespace TaskManagment
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
             var app = builder.Build();
+
+
+        
+            using(var  scope = app.Services.CreateScope())
+            {
+              var  roleManager=  scope.ServiceProvider.GetService<RoleManager<AppRole>>();
+
+                bool result = roleManager.RoleExistsAsync("ADMINS").Result;
+
+                if (!result)
+                {
+                  _=  roleManager.CreateAsync(new AppRole() { Name = "ADMINS" }).Result;
+                }
+
+
+                var userManager = scope.ServiceProvider.GetService<UserManager<AppUser>>();
+
+                var user = userManager.FindByEmailAsync("admin@experts.ps").Result;
+                if(user != null && !userManager.IsInRoleAsync(user,"ADMINS").Result)
+                {
+                  _=  userManager.AddToRoleAsync(user, "ADMINS").Result;
+                }
+
+
+
+
+                // var dbContext=  scope.ServiceProvider.GetService<TasksDbContext>();
+
+
+            }
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagment.Entities;
 
@@ -11,9 +12,11 @@ using TaskManagment.Entities;
 namespace TaskManagment.Migrations
 {
     [DbContext(typeof(TasksDbContext))]
-    partial class TasksDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240917134708_CustomizeAppUser")]
+    partial class CustomizeAppUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,7 +183,6 @@ namespace TaskManagment.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -234,9 +236,9 @@ namespace TaskManagment.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5843edf9-a9de-4f50-a1c3-b468ffebfd9b",
+                            Id = "685837a2-bf15-48a2-96ee-5ded267f6875",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4a9a146c-eb79-4350-b222-ef9625cb730a",
+                            ConcurrencyStamp = "0b40095f-9054-49c2-b7c2-219408b06cb2",
                             CountryId = 1,
                             Email = "admin@experts.ps",
                             EmailConfirmed = false,
@@ -244,9 +246,9 @@ namespace TaskManagment.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXPERTS.PS",
                             NormalizedUserName = "ADMIN@EXPERTS.PS",
-                            PasswordHash = "AQAAAAIAAYagAAAAECH3srUkiNzKjTlXyJwIrcEbxeYERQpQhJDLlKzp8m84vqPWb1+2z6BLFWOJS5ivAw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGjQgk2j41xor8hbTmxn6RLl+6/BzFbFurFnNlEGGm37KVhR0rV5UufDSkXxkoV82A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "ac0a71a0-2292-47d2-884a-846159e9210e",
+                            SecurityStamp = "cbe2fdd0-6038-4145-b51c-e2a86020d658",
                             TwoFactorEnabled = false,
                             UserName = "admin@experts.ps"
                         });

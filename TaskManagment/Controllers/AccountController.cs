@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using TaskManagment.AppServices.Security;
 using TaskManagment.Entities;
 using TaskManagment.Models;
 
 namespace TaskManagment.Controllers
 {
-    public class AccountController(SignInManager<AppUser> _signInManager) : Controller
+    public class AccountController(SignInManager<AppUser> _signInManager, TasksDbContext dbContext) : Controller
     {
 
 
@@ -16,20 +19,23 @@ namespace TaskManagment.Controllers
 
 
         [HttpGet]
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
+
+         
             return View();
         }
 
 
-        [HttpPost]  
+        [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel input)
         {
             if (ModelState.IsValid)
             {
-            var  result =   await  _signInManager.PasswordSignInAsync(input.Email, input.Password,input.RememberMe,false);
+                var result = await _signInManager.PasswordSignInAsync(input.Email, input.Password, input.RememberMe, false);
 
-                if (result.Succeeded) {
+                if (result.Succeeded)
+                {
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -55,34 +61,32 @@ namespace TaskManagment.Controllers
 
 
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
+            await FillRegisterLookups();
             return View();
         }
 
         [HttpPost]
 
-        public async Task<IActionResult> Register(RegisterViewModel input, [FromServices] UserManager<AppUser> userManager)
+        public async Task<IActionResult> Register(RegisterViewModel input, [FromServices] IAccountAppService accountAppService )
         {
-            if (ModelState.IsValid) {
-
-                AppUser user = new AppUser() { Email = input.EmailAddress, UserName = input.EmailAddress };
-
-             var  result =  await  userManager.CreateAsync(user, input.Password);
+            if (ModelState.IsValid)
+            {
 
 
-            
-
-                if (result.Succeeded)
+                var result =await accountAppService.Register(input);
+                if (result.Success)
                 {
 
                     return RedirectToAction(nameof(Login));
                 }
-                else if (result.Errors.Any()) {
+                else if (result.Errors.Any())
+                {
 
                     foreach (var error in result.Errors)
                     {
-                        ModelState.AddModelError("", error.Description);
+                        ModelState.AddModelError("", error);
 
                     }
                 }
@@ -93,8 +97,16 @@ namespace TaskManagment.Controllers
 
             }
 
+            await FillRegisterLookups();
 
             return View(input);
+        }
+
+
+        private async System.Threading.Tasks.Task FillRegisterLookups()
+        {
+            var countries = await dbContext.Countries.ToListAsync();
+            ViewBag.Countries = new SelectList(countries, nameof(Country.Id), nameof(Country.Name));
         }
 
     }
