@@ -2,18 +2,20 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using TaskManagment.AppServices.Security;
 using TaskManagment.Entities;
+using TaskManagment.Hubs;
 using TaskManagment.Models;
 
 namespace TaskManagment.Controllers
 {
     [AllowAnonymous]
-    public class AccountController(SignInManager<AppUser> _signInManager, TasksDbContext dbContext) : Controller
+    public class AccountController(SignInManager<AppUser> _signInManager, TasksDbContext dbContext, IHubContext<NotificationHub> _notificationHub) : Controller
     {
 
-
+      
         public IActionResult Index()
         {
             return RedirectToActionPermanent("Login");
@@ -81,6 +83,10 @@ namespace TaskManagment.Controllers
                 if (result.Success)
                 {
 
+                    // send notification to admins
+
+
+                    await _notificationHub.Clients.Group(SystemRoles.Admins).SendAsync("onUserRegister", input.FullName);
 
                     return RedirectToAction(nameof(Login));
                 }

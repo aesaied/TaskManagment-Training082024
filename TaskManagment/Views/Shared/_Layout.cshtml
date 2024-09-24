@@ -46,6 +46,31 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+
+    <script>
+
+        $(function () {
+
+            var connection = new signalR.HubConnectionBuilder().withUrl("/notification").build();
+            //  Add listner to  hub methods
+
+            connection.on("onUserRegister", function ( user) {
+                alert(user);
+            });
+
+          
+            //Activate connection (start)
+
+            connection.start().then(function () {
+
+               
+            }).catch(function (err) {
+                return console.error(err.toString());
+            });
+        
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

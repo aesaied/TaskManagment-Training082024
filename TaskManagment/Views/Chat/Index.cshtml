@@ -17,7 +17,7 @@
 <button type="button" id="btnSendMessage">Send</button>
 
 @section Scripts{
-    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+   
 
 
     <script>
@@ -31,6 +31,34 @@
                 document.getElementById("ulChat").appendChild(li);
                
                 li.textContent = `${user} says ${msg}`;
+            });
+
+            //onReceiveHistory
+
+            connection.on("onReceiveHistory", function (hist) {
+
+              
+
+                $.each(hist,function (index,msg) {
+
+                    //alert(JSON.stringify(msg));
+                    var li = document.createElement("li");
+                    document.getElementById("ulChat").appendChild(li);
+
+                    li.textContent = `${msg.name} says ${msg.body}`;
+                
+                })
+                
+            });
+
+            //onUserJoinGroup
+
+            connection.on("onUserJoinGroup", function (user) {
+
+
+
+                alert(`${user} join chat!`);
+
             });
            //Activate connection (start)
 
