@@ -15,9 +15,23 @@ namespace TaskManagment.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index([FromServices] IAuthorizationService authorizationService)
         {
-            return View();
+
+            var t1 =  authorizationService.AuthorizeAsync(User, "AdminOnly");
+            var t2 = authorizationService.AuthorizeAsync(User, "Palestine");
+
+            Task.WaitAll(t1, t2);
+            if (t1.Result.Succeeded ||t2.Result.Succeeded)
+            {
+
+                return View("AdminsOnly");
+            }
+            else
+            {
+                return View();
+
+            }
         }
 
         public IActionResult Privacy()

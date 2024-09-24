@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TaskManagment.AppServices.Employees;
@@ -6,6 +8,8 @@ using TaskManagment.AppServices.Projects;
 using TaskManagment.AppServices.Security;
 using TaskManagment.AppServices.Tasks;
 using TaskManagment.Entities;
+using TaskManagment.Hubs;
+using TaskManagment.Services;
 
 namespace TaskManagment
 {
@@ -14,9 +18,48 @@ namespace TaskManagment
         public static  void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            // add all required services  for signalR
+            builder.Services.AddSignalR();
 
             // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews(options => {
+
+
+                var policy = new AuthorizationPolicyBuilder()
+                     .RequireAuthenticatedUser()
+                     .Build();
+
+
+             
+
+                // Prevent access the system by not loged in users
+                options.Filters.Add(new AuthorizeFilter(policy));
+
+            });
+
+
+           builder.Services.AddScoped<IUserClaimsPrincipalFactory<AppUser>,
+    AdditionalUserClaimsPrincipalFactory>();
+
+
+            var adminPolicy = new AuthorizationPolicyBuilder()
+                .RequireRole(SystemRoles.Admins).Build();
+
+
+            builder.Services.AddAuthorization(options =>
+            {
+
+                options.AddPolicy("AdminOnly", adminPolicy);
+
+                options.AddPolicy("PAGE_TASKS", policy => policy.RequireAuthenticatedUser().RequireClaim("Pages", "Tasks"));
+                options.AddPolicy("PAGE_PROJECTS", policy => policy.RequireAuthenticatedUser().RequireClaim("Pages", "Projects"));
+
+                options.AddPolicy("Palestine", policy => policy.RequireAuthenticatedUser().RequireClaim(ClaimTypes.Country, "1"));
+
+
+            });
+
+
             builder.Services.AddRazorPages();
 
             builder.Services.AddScoped<ITasksAppService, TasksAppService>();
@@ -72,12 +115,24 @@ namespace TaskManagment
             {
               var  roleManager=  scope.ServiceProvider.GetService<RoleManager<AppRole>>();
 
-                bool result = roleManager.RoleExistsAsync("ADMINS").Result;
 
-                if (!result)
+
+
+                var createRoles = (string roleName) =>
                 {
-                  _=  roleManager.CreateAsync(new AppRole() { Name = "ADMINS" }).Result;
-                }
+
+                    bool result = roleManager.RoleExistsAsync(roleName).Result;
+                    if (!result)
+                    {
+                        _ = roleManager.CreateAsync(new AppRole() { Name = roleName }).Result;
+                    }
+                };
+
+
+
+                createRoles(SystemRoles.Admins);
+                createRoles(SystemRoles.Users);
+
 
 
                 var userManager = scope.ServiceProvider.GetService<UserManager<AppUser>>();
@@ -120,6 +175,7 @@ namespace TaskManagment
             app.UseAuthorization();
 
             app.MapRazorPages();
+            app.MapHub<ChatHub>("/chathub");
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskManagment.AppServices.Employees;
 
 namespace TaskManagment.Controllers
 {
+    [Authorize(Roles =SystemRoles.Admins)]
     public class EmployeesController(IEmployeeAppService _employeeAppService) : Controller
     {
         public IActionResult Index()

@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+
+@* Ul  to  add message history *@
+<ul id="ulChat">
+
+
+</ul>
+
+<input type="text"  id="user"/>
+<input type="text" id="msg" />
+<button type="button" id="btnSendMessage">Send</button>
+
+@section Scripts{
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+
+
+    <script>
+        $(function () { 
+           //  connect  to  hub (Build connection)
+            var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+           //  Add listner to  hub methods
+
+            connection.on("onReceiveMessage", function (msg, user) {
+                var li = document.createElement("li");
+                document.getElementById("ulChat").appendChild(li);
+               
+                li.textContent = `${user} says ${msg}`;
+            });
+           //Activate connection (start)
+
+            connection.start().then(function () {
+
+                $('#btnSendMessage').click(function () {
+                    let msg = $('#msg').val();
+                    let user = $('#user').val();
+                    connection.invoke("SendMessage", msg, user).then(function () { }).catch(function (error) { 
+                        
+                    });
+                });
+               
+            }).catch(function (err) {
+                return console.error(err.toString());
+            });
+        });
+    </script>
+}
+

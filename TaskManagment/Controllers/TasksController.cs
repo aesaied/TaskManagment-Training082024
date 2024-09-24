@@ -8,10 +8,18 @@ using TaskManagment.Models;
 using System.Linq.Dynamic.Core;
 using TaskManagment.AppServices.Tasks;
 using TaskManagment.AppServices.Projects;
+using TaskManagment.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace TaskManagment.Controllers
-{
+{ // [Authorize(Roles="Admins,Users")  ==> OR
+  // [Authorize(Roles =$"{SystemRoles.Admins},{SystemRoles.Users}")]
+  //[Authorize(Roles =SystemRoles.Admins)][
+
+    [Authorize(Roles =SystemRoles.Admins), Authorize("Palestine")]
+ 
+
     public class TasksController : Controller
     {
        
@@ -27,7 +35,7 @@ namespace TaskManagment.Controllers
             return View();
         }
 
-
+        [Authorize("AdminOnly")]
         public async Task<IActionResult> Create()
         {
          
@@ -37,6 +45,7 @@ namespace TaskManagment.Controllers
         }
 
 
+       
         private async System.Threading.Tasks.Task FillLookups()
         {
             var projects = await _projectAppService.GetAll();
@@ -49,7 +58,7 @@ namespace TaskManagment.Controllers
 
 
         [HttpPost]
-
+        [Authorize("AdminOnly")]
         public async Task<IActionResult> Create(CreateTaskModel input)
         {
             //

@@ -7,7 +7,6 @@
       "destination": "wwwroot/lib/datatables.net/"
     },
     {
-      "provider": "cdnjs",
       "library": "datatables.net-bs5@2.1.5",
       "destination": "wwwroot/lib/datatables.net/",
       "files": [
@@ -16,6 +15,10 @@
         "dataTables.bootstrap5.js",
         "dataTables.bootstrap5.min.css"
       ]
+    },
+    {
+      "library": "microsoft-signalr@8.0.7",
+      "destination": "wwwroot/lib/microsoft-signalr/"
     }
   ]
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using TaskManagment.Models;
 
 namespace TaskManagment.Controllers
 {
+    [AllowAnonymous]
     public class AccountController(SignInManager<AppUser> _signInManager, TasksDbContext dbContext) : Controller
     {
 
@@ -78,6 +80,7 @@ namespace TaskManagment.Controllers
                 var result =await accountAppService.Register(input);
                 if (result.Success)
                 {
+
 
                     return RedirectToAction(nameof(Login));
                 }

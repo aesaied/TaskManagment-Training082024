@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using System.Security.Claims;
 using TaskManagment.Entities;
 using TaskManagment.Models;
 
@@ -20,6 +21,8 @@ namespace TaskManagment.AppServices.Security
             if (result.Succeeded)
             {
 
+              //  await userManager.AddClaimAsync(user,new System.Security.Claims.Claim(ClaimTypes.GivenName,user.FullName));
+                await userManager.AddToRoleAsync(user, SystemRoles.Users);
                 return ResultDto.Ok;
             }
             else if (result.Errors.Any())
